@@ -10,49 +10,44 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PatchMapping;
 
 import company.admin_usuarios.modelos.Usuario;
+import company.admin_usuarios.data.RepositorioUsuario;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 @RestController
 public class ControladorUsuario{
 
-    private List<Usuario> users = new ArrayList<>();
-
-    public ControladorUsuario(){
-        users.addAll(Arrays.asList(
-            new Usuario(1,"Usuario 1","ejemplo1@compañia.com.mx"),
-            new Usuario(2,"Usuario 2","ejemplo2@compañia.com.mx"),
-            new Usuario(3,"Usuario 3","ejemplo3@compañia.com.mx"),
-            new Usuario(4,"Usuario 4","ejemplo4@compañia.com.mx")
-            )
-        );
-    }
+    @Autowired
+    private RepositorioUsuario repositorio_usuarios;
 
     @GetMapping("/usuario")
-    public Iterable<Usuario> todos(){
-        return users;
+    public HashMap<String,Object> todos(){
+        HashMap<String,Object> response=new HashMap<String,Object>();
+        List users=repositorio_usuarios.todosLosUsuarios();
+        if(users.size()==0){
+            response.put("data","No hay usuarios por mostrar");
+            response.put("error","");
+            return response;
+        }
+        response.put("data",users);
+        response.put("error","");
+        return response;
     }
 
     @GetMapping("/usuario/{id}")
-    public HashMap<String,String> usuarioEncontrado(@PathVariable(value="id") int id){
-        HashMap<String,String> response=new HashMap<String,String>();
+    public HashMap<String,Object> usuarioEncontrado(@PathVariable(value="id") int id){
+        HashMap<String,Object> response=new HashMap<String,Object>();
         Usuario usuario_encontrado=null;
-        for(Usuario usuario:users){
-            if(usuario.getId()==id){
-                usuario_encontrado=usuario;
-            }
-        }
+        usuario_encontrado=repositorio_usuarios.buscarPorId(id);
         if(usuario_encontrado==null){
             response.put("data","");
             response.put("error","No se encontró al usuario con el id "+String.valueOf(id));
             return response;
         }
-        response.put("data",usuario_encontrado.toString());
-        response.put("error","No se encontró al usuario con el id "+String.valueOf(id));
+        response.put("data",usuario_encontrado);
+        response.put("error","");
         return response;
     }
 
@@ -70,12 +65,11 @@ public class ControladorUsuario{
             return response;
         }
 
-        int id=users.size()+1;
         String nombre=input.get("nombre");
         String correo=input.get("correo");
 
-        Usuario nuevo_usuario=new Usuario(id,nombre,correo);
-        users.add(nuevo_usuario);
+        repositorio_usuarios.agergarUsuario(nombre,correo);
+
         response.put("data","Hecho");
         response.put("error","");
         return response;
@@ -85,16 +79,13 @@ public class ControladorUsuario{
     public HashMap<String,String> removerUsuario(@PathVariable(value="id") int id){
         HashMap<String,String> response=new HashMap<String,String>();
         Usuario usuario_remover=null;
-        for(Usuario usuario:users){
-            if(usuario.getId()==id){
-                usuario_remover=usuario;
-            }
-        }
+        usuario_remover=repositorio_usuarios.buscarPorId(id);
         if(usuario_remover==null){
             response.put("data","");
             response.put("error","No existe el usario con el id "+String.valueOf(id));
+            return response;
         }
-        users.remove(usuario_remover);
+        repositorio_usuarios.eliminarUsuario(usuario_remover);
         response.put("data","Usuario eliminado exitosamente");
         response.put("error","");
         return response;
@@ -110,11 +101,7 @@ public class ControladorUsuario{
             return response;
         }
         Usuario usuario_actualizar=null;
-        for(Usuario usuario:users){
-            if(usuario.getId()==id){
-                usuario_actualizar=usuario;
-            }
-        }
+        usuario_actualizar=repositorio_usuarios.buscarPorId(id);
         if(usuario_actualizar==null){
             response.put("data","");
             response.put("error","No existe el usario con el id "+String.valueOf(id));

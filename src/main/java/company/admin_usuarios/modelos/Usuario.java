@@ -4,16 +4,16 @@ public class Usuario{
 
     int id=0;
     String nombre=null;
-    String email=null;
+    String correo=null;
     /**
     *   @param id El id del usuario
     *   @param nombre El nombre completo del usuario
-    *   @param email El correo electrónico del usuario
+    *   @param correo El correo electrónico del usuario
     */
-    public Usuario(int id,String nombre,String email){
+    public Usuario(int id,String nombre,String correo){
         this.id=id;
         this.nombre=nombre;
-        this.email=email;
+        this.correo=correo;
     }
 
     public void setId(int id){
@@ -24,8 +24,8 @@ public class Usuario{
         this.nombre=nombre;
     }
 
-    public void setEmail(String email){
-        this.email=email;
+    public void setCorreo(String correo){
+        this.correo=correo;
     }
 
     public int getId(){
@@ -36,8 +36,8 @@ public class Usuario{
         return this.nombre;
     }
 
-    public String getEmail(){
-        return this.email;
+    public String getCorreo(){
+        return this.correo;
     }
 
 
